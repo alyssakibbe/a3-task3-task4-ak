@@ -1,0 +1,97 @@
+---
+title: "a3_task3_alyssa_kibbe"
+author: "Alyssa Kibbe"
+date: "10/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(here)
+library(janitor)
+library(kableExtra)
+```
+# Exploring Urchin Dataset
+## Preparing Urchins data & exploration
+```{r}
+urchins <- read.csv(here("data", "urchins.csv")) %>% 
+  clean_names() 
+
+urchins <- urchins %>% 
+  mutate(date = mdy(date))
+
+class(urchins$date)
+  
+urchin_summary<-urchins %>%   
+  group_by(common_name) %>% 
+  summarize(mean_size = mean(size),
+            median_size = median(size),
+            sd_size = sd(size),
+            n_size= n())
+kbl(urchin_summary) %>% 
+  kable_styling()
+
+#Percent Difference
+(6.776 - 4.470)/4.470
+#Actual Difference
+6.776 - 4.470
+
+ggplot(data = urchins, aes(x = common_name, 
+                           y = size))+
+  geom_boxplot()+
+  labs(x = "Urchin Species", y = "Diameter (cm)")
+
+ggplot(data = urchins, aes(x = size))+
+  geom_histogram(bins = 20)+
+  facet_wrap(~common_name)+
+  labs(x = "Diameter (cm)", y= "Count")
+
+```
+
+
+
+#### Exploration results
+Data appears to be normally distributed as seen with histogram. Boxplot shows a few values at the high tail. Red Urchins have a a larger mean diameter but a slightly larger standard deviation compared to Purple Urchins. The percent difference between the means is 51.59% while the actual difference is 2.306.
+
+## Purple Urchins
+```{r}
+purple_urchins <- urchins %>% 
+  filter(common_name == "Purple Urchin") %>% 
+  mutate(new_date = ymd(date)) %>% 
+  mutate(urchin_year = year(new_date)) %>% 
+  mutate(site_full = case_when(
+    site == "NAPL" ~ "Naples Reef",
+    site == "AQUE" ~ "Arroyo Quemado Reef",
+    site == "CARP" ~ "Carpinteria Reef",
+    site == "MOHK" ~ "Mohawk Reef",
+    site == "IVEE" ~ "Isla Vista Reef"
+  ))
+```
+
+### Summary Table & Graph
+
+```{r}
+count_purple<- purple_urchins %>%
+  count(site_full, urchin_year)
+
+ggplot(data = count_purple, aes(x = urchin_year, y = n)) +
+       geom_col(aes(colour = site_full), show.legend = FALSE)+
+  facet_wrap(~site_full)+
+  theme_bw()+
+  labs(x = "Year", y = "Purple Urchin Count")
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
