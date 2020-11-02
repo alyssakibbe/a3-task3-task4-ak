@@ -636,9 +636,8 @@ t4_urchins &lt;- t4_urchins %&gt;%
   summarize(naples_mean = mean(size),
             naples_median = median(size),
             naples_sd = sd(size),
-            naples_n= n())</code></pre>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<pre class="r"><code>kbl(naples_summary) %&gt;% 
+            naples_n= n())
+kbl(naples_summary) %&gt;% 
   kable_styling()</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
