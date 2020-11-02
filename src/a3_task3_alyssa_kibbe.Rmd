@@ -34,7 +34,7 @@ kbl(urchin_summary) %>%
   kable_styling()
 
 #Percent Difference
-(6.776 - 4.470)/4.470
+(6.776 - 4.470)/((4.470+6.776)/2)*100
 #Actual Difference
 6.776 - 4.470
 

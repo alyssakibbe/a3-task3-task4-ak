@@ -1,0 +1,91 @@
+---
+title: "a3_task4_alyssa_kibbe"
+author: "Alyssa Kibbe"
+date: "10/31/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(here)
+library(janitor)
+library(kableExtra)
+```
+# Exploring Control vs. Annual Urchin Groups
+```{r}
+t4_urchins<- read.csv(here("data", "urchins.csv")) %>% 
+  clean_names()
+
+t4_urchins <- t4_urchins %>% 
+  mutate(date = mdy(date))
+```
+
+### Filter Data for Naples, January 2010
+```{r}
+naples_urchins<- t4_urchins %>%  
+  filter(common_name == "Purple Urchin") %>% 
+  filter(site == "NAPL") %>% 
+  mutate(naples_date = ymd(date)) %>% 
+  mutate(naples_year = year(naples_date)) %>% 
+  mutate(naples_month = month(naples_date)) %>% 
+  filter(naples_month == "1") %>% 
+  filter(naples_year == "2010")
+```
+
+### Exploratory Histograms & QQ-plots
+```{r}
+ggplot(data = naples_urchins, aes(size))+
+  geom_histogram(bins = 20)+
+  facet_wrap(~treatment)
+ 
+
+ggplot(data = naples_urchins, aes(sample = size))+
+  geom_qq()+
+  facet_wrap(~treatment)
+
+```
+
+##### Looking at the histograms, the data does not appear to have a normal distribution. There are lows in both populations in the middle of the size range. However, the maximums in both groups appear between 3 to 5 in with the whole data set ranging from 2-6. 
+
+##### Looking at the QQ-plot, the control group has a slope closer to 1 which suggests that is it more normally distributed compared to the annual data. The plots show the few high tail values present in both data sets while the majority of the points are between 3-5. 
+
+
+### Data Summary Table
+```{r}
+naples_summary<-naples_urchins %>%   
+  group_by(treatment) %>% 
+  summarize(naples_mean = mean(size),
+            naples_median = median(size),
+            naples_sd = sd(size),
+            naples_n= n())
+kbl(naples_summary) %>% 
+  kable_styling()
+```
+
+### Create Vectors & Two-sample T-test
+```{r}
+annual_mean<- naples_urchins %>% 
+  filter(treatment == "ANNUAL") %>% 
+  pull(size)
+
+control_mean <- naples_urchins %>% 
+  filter(treatment == "CONTROL") %>% 
+  pull(size)
+
+t.test(control_mean, annual_mean)
+```
+##### Comparing means
+```{r}
+#difference:
+3.196667 - 3.725806
+
+#percent difference
+((3.196667 - 3.725806) / ((3.196667+3.725806)/2))*100
+
+```
+
+
+#### Comparing the means between the two groups, there is a difference of 0.529 and a percent difference of 15.3%. The difference in means suggests that there is a possibility that these means were collected from the same population. The p-value (0.254) is large, suggesting there is a small difference between the population means. If comparing to the standard 0.05, the difference in means is not significant. 
+
